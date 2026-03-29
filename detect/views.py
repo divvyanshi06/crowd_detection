@@ -30,7 +30,8 @@ class AnalyzeVideoView(APIView):
         ext = os.path.splitext(video.name)[1] or ".mp4"
 
         input_path = os.path.join(upload_dir, f"{file_id}{ext}")
-        output_path = os.path.join(processed_dir, f"{file_id}_boxed.mp4")
+        output_path = os.path.join(processed_dir, f"{file_id}_boxed.avi")
+        
 
         # save uploaded video
         with open(input_path, "wb+") as f:
@@ -50,7 +51,7 @@ class AnalyzeVideoView(APIView):
         # optional output video link
         if os.path.exists(output_path):
             response_data["processed_video"] = request.build_absolute_uri(
-                f"{settings.MEDIA_URL}processed/{file_id}_boxed.mp4"
+                f"{settings.MEDIA_URL}processed/{file_id}_boxed.avi"
             )
 
         return Response(response_data, status=200)
