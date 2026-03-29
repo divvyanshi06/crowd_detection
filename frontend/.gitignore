@@ -1,3 +1,33 @@
+# ----------------------
+# Python / Django
+# ----------------------
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+db.sqlite3
+*.sqlite3
+
+# Virtual environment
+venv/
+env/
+ENV/
+
+# Media files (VERY IMPORTANT)
+media/
+
+# Model file (VERY IMPORTANT)
+yolov8n.pt
+
+# ----------------------
+# Node / Frontend
+# ----------------------
+node_modules/
+dist/
+dist-ssr/
+*.local
+
 # Logs
 logs
 *.log
@@ -7,16 +37,15 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-node_modules
-dist
-dist-ssr
-*.local
-
-# Editor directories and files
+# ----------------------
+# Editor / OS
+# ----------------------
 .vscode/*
 !.vscode/extensions.json
-.idea
+.idea/
 .DS_Store
+Thumbs.db
+
 *.suo
 *.ntvs*
 *.njsproj

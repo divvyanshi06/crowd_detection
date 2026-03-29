@@ -1,59 +1,86 @@
 import { useState } from "react";
+import axios from "axios";
 
 export default function UploadBox({ setVideo, setResult }) {
-const [drag, setDrag] = useState(false);
+  const [drag, setDrag] = useState(false);
+  const [loading, setLoading] = useState(false);
 
-const handleFile = (file) => {
-setVideo(file);
+  const handleFile = async (file) => {
+    if (!file) return;
 
-let count = 5;
+    setVideo(file);
 
-const interval = setInterval(() => {
-  count += Math.floor(Math.random() * 5);
+    const formData = new FormData();
+    formData.append("video", file);
 
-  let risk = "LOW";
-  if (count > 25) risk = "HIGH";
-  else if (count > 12) risk = "MEDIUM";
+    try {
+      setLoading(true);
 
-  setResult({ count, risk });
+      const res = await axios.post(
+        "http://127.0.0.1:8000/api/analyze-video/",
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
 
-}, 1000);
+      // ✅ REAL BACKEND RESPONSE
+      setResult({
+        risk: res.data.risk,
+        avg_people: res.data.avg_people,
+        max_people: res.data.max_people,
+        video: res.data.processed_video,
+      });
 
-setTimeout(() => clearInterval(interval), 8000);
+    } catch (err) {
+      console.error(err);
+      alert("Error processing video");
+    } finally {
+      setLoading(false);
+    }
+  };
 
-};
+  return (
+    <div
+      style={{
+        ...styles.box,
+        border: drag
+          ? "2px solid #38bdf8"
+          : "2px dashed rgba(255,255,255,0.2)",
+      }}
+      onDragOver={(e) => {
+        e.preventDefault();
+        setDrag(true);
+      }}
+      onDragLeave={() => setDrag(false)}
+      onDrop={(e) => {
+        e.preventDefault();
+        setDrag(false);
+        handleFile(e.dataTransfer.files[0]);
+      }}
+    >
+      <input
+        type="file"
+        accept="video/*"
+        onChange={(e) => handleFile(e.target.files[0])}
+      />
 
-return (
-<div
-style={{
-...styles.box,
-border: drag ? "2px solid #38bdf8" : "2px dashed rgba(255,255,255,0.2)",
-}}
-onDragOver={(e) => {
-e.preventDefault();
-setDrag(true);
-}}
-onDragLeave={() => setDrag(false)}
-onDrop={(e) => {
-e.preventDefault();
-setDrag(false);
-handleFile(e.dataTransfer.files[0]);
-}}
->
-<input
-type="file"
-accept="video/*"
-onChange={(e) => handleFile(e.target.files[0])}
-/> <p>Drag & Drop or Upload Video</p> </div>
-);
+      <p>
+        {loading ? "Processing video..." : "Drag & Drop or Upload Video"}
+      </p>
+    </div>
+  );
 }
 
 const styles = {
-box: {
-padding: "20px",
-borderRadius: "12px",
-background: "rgba(255,255,255,0.08)",
-backdropFilter: "blur(15px)",
-textAlign: "center",
-},
+  box: {
+    padding: "20px",
+    borderRadius: "12px",
+    background: "rgba(255,255,255,0.08)",
+    backdropFilter: "blur(15px)",
+    textAlign: "center",
+    cursor: "pointer",
+  },
 };
