@@ -45,29 +45,29 @@ class AnalyzeVideoView(APIView):
                 status=500
             )
 
-        # Process video (AI)
+        # Run AI processing
         try:
             result = analyze_video(input_path, output_path)
         except Exception as e:
             import traceback
-            print("\n\n===== FULL ERROR =====")
             traceback.print_exc()
-            print("===== END ERROR =====\n\n")
-
             return Response(
                 {"status": "error", "message": str(e)},
                 status=500
             )
 
-        # Prepare response
+        # ✅ FINAL RESPONSE
         response_data = {
             "status": "success",
             "risk": result.get("risk"),
             "avg_people": result.get("avg_people"),
             "max_people": result.get("max_people"),
+            "danger_score": result.get("danger_score", 0),
+            "frame_counts": result.get("frame_counts", []),   # per-frame people count
+            "total_frames": result.get("total_frames", 0),   # sampled frame count
         }
 
-        # Add processed video URL if exists
+        # Add processed video
         if os.path.exists(output_path):
             response_data["processed_video"] = request.build_absolute_uri(
                 f"{settings.MEDIA_URL}processed/{file_id}_boxed.avi"
